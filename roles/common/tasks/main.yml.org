@@ -1,0 +1,22 @@
+---
+- name: Disable and stop firewalld
+  service: name=firewalld state=stopped enabled=no
+
+- name: Ensure the required packages are installed.
+  yum: name={{ item }} state=latest update_cache=yes
+  with_items:
+    - lvm2
+    - parted
+    - ntp
+    - bind-utils
+    - epel-release
+
+- name: Set timezone to {{ timezone }}
+  timezone: name={{ timezone }}
+
+- name: Enable and Start ntpd
+  service: name=ntpd state=restarted enabled=yes
+
+- name: Disable selinux
+  selinux: state=disabled
+...

@@ -1,0 +1,7 @@
+DEVICE=eth2.103
+TYPE=Ethernet
+BOOTPROTO=none
+ONBOOT=yes
+VLAN=yes
+
+BRIDGE=br-mesh

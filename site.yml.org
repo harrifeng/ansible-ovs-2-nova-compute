@@ -1,0 +1,33 @@
+---
+
+- name: Stop Docker Temporary
+  hosts: all
+  roles:
+    - docker-stop
+
+- name: Cleaning legacy daemon on node
+  hosts: all
+  roles:
+    - common
+
+- name: Configure Network Setting
+  hosts: all
+  roles:
+    - network
+
+- name: Configure Openstack Container
+  hosts: all
+  roles:
+    - config-nova
+
+- name: Start Docker from Configuration
+  hosts: all
+  roles:
+    - docker-start
+
+- name: Finish Job after process
+  hosts: all
+  roles:
+    - post-config
+
+...

@@ -1,0 +1,6 @@
+---
+bash_aliases: 
+      - { name: e, value: "etcdctl --endpoints {{ etcd_ip }}:2379"}
+      - { name: uc, value: "kubectl -s {{ master_ip }}:8080" }
+      - { name: watch, value: 'watch ' }
+...

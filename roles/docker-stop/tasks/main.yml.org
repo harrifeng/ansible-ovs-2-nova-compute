@@ -1,0 +1,86 @@
+---
+
+- name: Stop Docker Process
+  service: name=docker state=stopped
+...
+
+- name: Install docker container engine package
+  yum: name={{ item }} state=latest
+  with_items:
+    - docker
+    - python-pip
+
+- name: Put /etc/sysconfig/docker file.
+  template: src=docker.j2 dest=/etc/sysconfig/docker 
+#  lineinfile: dest=/etc/sysconfig/docker regexp='^OPTIONS=' 
+#      line="OPTIONS='--selinux-enabled --log-driver=journald -G dockerroot'"
+
+- name: Check for {{ docker_devs }}
+  command: parted -s {{ docker_devs }} print {{ docker_devs_partno }}
+  register: docker_lvm
+  failed_when: docker_lvm.rc is not defined
+  changed_when: >
+    docker_lvm.stdout == "Error: partition does not exists."
+
+- name: Get the free space for {{ docker_devs }}
+  shell: "parted -m {{ docker_devs }} unit s print free|grep 'free;' |tail -1 |cut -f2 -d':'"
+  register: mkpart_start
+
+- name: Make Label to disk {{ docker_devs }}
+  shell: "parted -s {{ docker_devs}} mklabel gpt"
+  when: docker_lvm.rc != 0
+
+- name: Create {{ docker_devs }}{{ docker_devs_partno }}
+  command: parted -s {{ docker_devs }} mkpart primary {{ mkpart_start.stdout }} 100%
+  when: docker_lvm.rc != 0
+
+- name: Add LVM flag to {{ docker_devs}}{{ docker_devs_partno }}
+  command: parted -s {{ docker_devs}} set {{ docker_devs_partno }} lvm on
+  when: docker_lvm.rc != 0
+
+- name: Create VG docker with PV {{ docker_devs }}{{ docker_devs_partno }}
+  lvg: vg=docker pvs={{ docker_devs }}{{docker_devs_partno }}
+  when: docker_lvm.rc != 0
+
+- name: Create LV docker-pool as thinpool on VG docker
+  lvol: vg=docker lv=docker-pool     size=95%VG  opts='--wipesignature y'
+  when: docker_lvm.rc != 0
+
+- name: Create LV docker-poolmeta as thinpool on VG docker
+  lvol: vg=docker lv=docker-poolmeta size=1%VG   opts='--wipesignature y'
+  when: docker_lvm.rc != 0
+
+- name: LVconvert docker-pool
+  shell: "lvconvert -y --zero n -c 512K --thinpool docker/docker-pool --poolmetadata docker/docker-poolmeta"
+  when: docker_lvm.rc != 0
+
+- name: Put /etc/lvm/profile/docker-pool.profile file.
+  template: src=docker-pool.profile.j2 dest=/etc/lvm/profile/docker-pool.profile
+
+- name: LVchange docker-pool
+  shell: "lvchange --metadataprofile docker-pool docker/docker-pool"
+
+- name: Put /etc/sysconfig/docker-storage file.
+  template: src=docker-storage.j2 dest=/etc/sysconfig/docker-storage
+  
+
+
+- name: Put /etc/sysconfig/docker-storage-setup file.
+  template: src=docker-storage-setup.j2 dest=/etc/sysconfig/docker-storage-setup
+
+- name: Run docker-storage-setup
+  command: docker-storage-setup
+
+- name: Enable and Start docker
+  service: name=docker state=restarted enabled=yes
+
+- name: Set up the operator user 'ucim' other than root
+  user: name=ucim comment="UCIM user" groups=wheel,dockerroot append=yes
+      password={{ ucim_password }}
+
+- name: Install docker-py module.
+  shell: /usr/bin/pip install docker-py
+
+#- name: Inline-Edit sudoers of wheel group.
+#  lineinfile: "dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'"
+...

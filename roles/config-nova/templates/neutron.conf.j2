@@ -1,0 +1,72 @@
+[DEFAULT]
+debug = False
+log_dir = /var/log/kolla/neutron
+use_stderr = False
+
+bind_host = {{ localhost_br_mgmt_ip }}
+bind_port = 9696
+
+api_paste_config = /usr/share/neutron/api-paste.ini
+endpoint_type = internalURL
+api_workers = 1
+metadata_works = 1
+metadata_proxy_socket = /var/lib/neutron/kolla/metadata_proxy
+interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+allow_overlapping_ips = true
+core_plugin = ml2
+service_plugins = router
+
+#global_physnet_mtu = 9000
+global_physnet_mtu = 1500
+
+router_distributed = True
+
+[nova]
+auth_url = http://{{ localhost_br_mgmt_ip }}:35357/v3
+auth_type = password
+project_name = services
+project_domain_id = default
+tenant_name = services
+user_domain_id = default
+region_name = RegionOne
+username = nova
+password = {{ nova_password }}
+endpoint_type = internal
+
+[oslo_concurrency]
+lock_path = /var/lib/neutron/tmp
+
+[oslo_messaging_rabbit]
+rabbit_userid = nova
+rabbit_password = {{ rabbit_password }}
+
+rabbit_ha_queues = true
+rabbit_hosts = {{ controller_node_mgmt_ip }}:5673
+
+[agent]
+root_helper = sudo neutron-rootwrap /etc/neutron/rootwrap.conf
+
+[database]
+connection = mysql+pymysql://neutron:{{ db_neutron }}@{{ controller_haproxy_mgmt_vip }}:3306/neutron
+max_retries = -1
+max_pool_size = 32
+min_pool_size = 32
+max_overflow = 32
+
+[keystone_authtoken]
+auth_uri = http://{{ controller_haproxy_mgmt_vip }}:5000/
+auth_url = http://{{ controller_haproxy_mgmt_vip }}:35357/
+auth_type = password
+
+project_name = services
+project_domain_id = Default
+user_domain_id = Default
+username = neutron
+password = {{ neutron_password }}
+memcache_security_strategy = ENCRYPT
+memcache_secret_key = {{ memcache_secret_key }}
+memcached_servers = {{ localhost_br_mgmt_ip }}:11211
+
+[oslo_messaging_notifications]
+driver = noop
+

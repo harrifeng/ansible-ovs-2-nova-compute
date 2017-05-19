@@ -1,0 +1,123 @@
+[DEFAULT]
+debug = False
+log_dir = /var/log/kolla/nova
+use_forwarded_for = true
+api_paste_config = /etc/nova/api-paste.ini
+state_path = /var/lib/nova
+
+osapi_compute_listen = $my_ip
+osapi_compute_listen_port = 8774
+osapi_compute_workers = 1
+metadata_workers = 1
+metadata_listen = $my_ip
+metadata_listen_port = 8775
+use_neutron = True
+
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+scheduler_max_attempts = 10
+linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
+allow_resize_to_same_host = true
+compute_driver = libvirt.LibvirtDriver
+
+my_ip = {{ localhost_br_mgmt_ip }}
+
+[conductor]
+workers = 1
+
+[vnc]
+novncproxy_host = $my_ip
+novncproxy_port = 6080
+vncserver_listen = 0.0.0.0
+vncserver_proxyclient_address = $my_ip
+novncproxy_base_url = http://{{ controller_haproxy_pub_vip }}:6080/vnc_auto.html  
+
+[oslo_messaging_rabbit]
+rabbit_userid = nova
+rabbit_password = {{ rabbit_password }}
+rabbit_ha_queues = true
+rabbit_hosts = {{ controller_node_mgmt_ip }}:5673
+
+[oslo_concurrency]
+lock_path = /var/lib/nova/tmp
+
+[glance]
+api_servers = http://{{ controller_haproxy_mgmt_vip }}:9292  
+
+num_retries = 2
+
+[cinder]
+catalog_info = volume:cinder:internalURL
+
+[neutron]
+url = http://{{ controller_haproxy_mgmt_vip }}:9696  
+
+metadata_proxy_shared_secret = {{ metadata_proxy_shared_secret }}
+service_metadata_proxy = true
+auth_url = http://{{ controller_haproxy_mgmt_vip }}:35357   
+
+auth_type = password
+project_domain_name = default
+user_domain_id = default
+project_name = services
+username = neutron
+password = {{ neutron_password }}
+
+
+
+[database]
+connection = mysql+pymysql://nova:{{ db_nova }}@{{ controller_haproxy_mgmt_vip }}:3306/nova  
+max_pool_size = 50
+max_overflow = 1000
+max_retries = -1
+
+[api_database]
+connection = mysql+pymysql://nova_api:{{ db_nova }}@{{ controller_haproxy_mgmt_vip }}:3306/nova_api  
+max_retries = -1
+
+[cache]
+backend = oslo_cache.memcache_pool
+enabled = True
+memcache_servers = {{ controller_node_mgmt_ip }}:11211  
+
+[keystone_authtoken]
+auth_uri = http://{{ controller_haproxy_mgmt_vip }}:5000  
+auth_url = http://{{ controller_haproxy_mgmt_vip }}:35357  
+
+auth_type = password
+project_domain_id = default
+user_domain_id = default
+#project_name = service
+project_name = services
+username = nova
+password = {{ nova_password }}
+memcache_security_strategy = ENCRYPT
+memcache_secret_key = {{ memcache_secret_key }}
+memcached_servers = {{ controller_node_mgmt_ip }}:11211  
+
+
+[libvirt]
+#virt_type = qemu
+virt_type = xen
+#connection_uri = "qemu+tcp://172.16.1.16/system"  <-- localhost
+connection_uri = "xen+tcp://{{ localhost_br_mgmt_ip }}/system"
+
+[upgrade_levels]
+compute = auto
+
+[oslo_messaging_notifications]
+driver = noop
+
+[privsep_entrypoint]
+helper_command = sudo nova-rootwrap /etc/nova/rootwrap.conf privsep-helper --config-file /etc/nova/nova.conf
+
+###################################################################
+# localhost_br_mgmt_ip : {{ localhost_br_mgmt_ip }}
+# controller_haproxy_pub_vip : {{ controller_haproxy_pub_vip }}
+# controller_haproxy_mgmt_vip : {{ controller_haproxy_mgmt_vip }}
+# controller_node_mgmt_ip : {{ controller_node_mgmt_ip }}
+# rabbit_password : {{ rabbit_password }}
+# nova_password : {{ nova_password }}
+# neutron_password : {{ neutron_password }}
+# metadata_proxy_shared_secret : {{ metadata_proxy_shared_secret }}
+# memcache_secret_key : {{ memcache_secret_key }}
+#

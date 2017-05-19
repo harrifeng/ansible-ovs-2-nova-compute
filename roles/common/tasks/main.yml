@@ -1,0 +1,32 @@
+---
+
+- name: Disable and stop open-vswitchd
+  blockinfile:
+    path: /etc/rc.local
+    block: |
+      /etc/rc.d/init.d/openvswitch stop
+
+#  command : "/etc/rc.d/init.d/openvswitch stop"
+#  service: name=ovs-vswitchd state=stopped  (not running in init)
+
+- name: Set timezone to {{ timezone }}
+  timezone: name={{ timezone }}
+
+- name: Enable and Start ntpd
+  service: name=ntpd state=restarted enabled=yes
+
+- name: Disable selinux
+  selinux: state=disabled
+
+
+- name: Copy Yum Repository config.
+  copy: src=epel.repo           dest=/etc/yum.repos.d
+
+- name: Copy Yum Repository config.
+  copy: src=epel-testing.repo   dest=/etc/yum.repos.d
+
+- name: Copy Yum Repository config.
+  copy: src=public-yum-ol6.repo dest=/etc/yum.repos.d
+
+
+...

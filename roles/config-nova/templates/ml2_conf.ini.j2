@@ -1,0 +1,34 @@
+[ml2]
+type_drivers = flat,vlan,vxlan
+tenant_network_types = vxlan
+mechanism_drivers = openvswitch,l2population
+physical_network_mtus = physnet1:9000
+path_mtu = 1500
+
+[ml2_type_vlan]
+network_vlan_ranges = physnet1:1:1000
+
+[ml2_type_flat]
+flat_networks = physnet1
+
+[ml2_type_vxlan]
+vni_ranges = 1:1000
+vxlan_group = 239.1.1.1
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+
+[agent]
+tunnel_types = vxlan
+l2_population = true
+arp_responder = true
+enable_distributed_routing = True
+
+[ovs]
+#bridge_mappings = physnet1:br-ex
+bridge_mappings = physnet1:br-floating
+local_ip = {{ localhost_br_mesh_ip }}
+#ovsdb_connection = tcp:172.16.1.16:6640
+## add integration bridge & tunnel bridge
+integration_bridge = br-int
+tunnel_bridge = br-tun

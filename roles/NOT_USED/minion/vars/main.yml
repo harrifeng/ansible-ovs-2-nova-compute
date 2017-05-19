@@ -1,0 +1,7 @@
+---
+pod_image_repo: "registry.access.redhat.com/rhel7/pod-infrastructure:latest"
+minion_duo:
+  - kubelet
+  - kube-proxy
+kubelet_args: "--cluster-dns=10.10.0.10 --cluster-domain=ucim.local"
+...

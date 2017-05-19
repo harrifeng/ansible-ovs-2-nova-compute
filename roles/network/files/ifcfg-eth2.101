@@ -1,0 +1,7 @@
+DEVICE=eth2.101
+TYPE=Ethernet
+BOOTPROTO=none
+ONBOOT=yes
+VLAN=yes
+
+BRIDGE=br-mgmt

@@ -1,0 +1,49 @@
+---
+
+- name: Configure nova-compute
+  template: src={{ item }}.j2 dest=/etc/kolla/nova-compute/{{ item }}
+  with_items:
+    - nova.conf
+
+- name: Configure nova-ssh
+  template: src={{ item }}.j2 dest=/etc/kolla/nova-ssh/{{ item }}
+  with_items:
+    - sshd_config
+
+- name: Configure openvswitch-db-server
+  template: src={{ item }}.j2 dest=/etc/kolla/openvswitch-db-server/{{ item }}
+  with_items:
+    - config.json
+
+
+- name: Configure neutron-openvswitch-agent
+  template: src={{ item }}.j2 dest=/etc/kolla/neutron-openvswitch-agent/{{ item }}
+  with_items:
+    - ml2_conf.ini
+    - neutron.conf
+
+- name: Configure neutron-l3-agent
+  template: src={{ item }}.j2 dest=/etc/kolla/neutron-l3-agent/{{ item }}
+  with_items:
+    - ml2_conf.ini
+    - neutron.conf
+
+- name: Configure neutron-metadata-agent
+  template: src={{ item }}.j2 dest=/etc/kolla/neutron-metadata-agent/{{ item }}
+  with_items:
+    - ml2_conf.ini
+    - neutron.conf
+    - metadata_agent.ini
+
+
+
+
+
+
+### careful for lost conn. on remote action
+#- name: Network Restart
+#  service: name=network state=restarted
+
+
+
+...

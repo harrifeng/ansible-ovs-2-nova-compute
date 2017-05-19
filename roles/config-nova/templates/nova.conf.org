@@ -1,0 +1,161 @@
+[DEFAULT]
+debug = False
+log_dir = /var/log/kolla/nova
+use_forwarded_for = true
+api_paste_config = /etc/nova/api-paste.ini
+state_path = /var/lib/nova
+
+#osapi_compute_listen = 172.16.1.16  <-- localhost
+osapi_compute_listen = $my_ip
+osapi_compute_listen_port = 8774
+osapi_compute_workers = 1
+metadata_workers = 1
+#metadata_listen = 172.16.1.16  <-- localhost
+metadata_listen = $my_ip
+metadata_listen_port = 8775
+use_neutron = True
+
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+scheduler_max_attempts = 10
+linuxnet_interface_driver = nova.network.linux_net.LinuxOVSInterfaceDriver
+allow_resize_to_same_host = true
+compute_driver = libvirt.LibvirtDriver
+
+#my_ip = 172.16.1.16  <-- localhost ( network-interface in kolla)
+my_ip = 192.168.0.15  
+# localhost ( br-mgmt in fuel )
+
+
+[conductor]
+workers = 1
+
+[vnc]
+#novncproxy_host = 172.16.1.16  <-- localhost (br-ex)
+novncproxy_host = $my_ip
+novncproxy_port = 6080
+vncserver_listen = 0.0.0.0
+#vncserver_proxyclient_address = 172.16.1.16  <-- localhost
+vncserver_proxyclient_address = $my_ip
+#novncproxy_base_url = http://10.10.10.254:6080/vnc_auto.html  <-- tunnel-interface in kolla  (1/8)
+#novncproxy_base_url = http://172.16.0.3:6080/vnc_auto.html  
+novncproxy_base_url = http://172.16.0.8:6080/vnc_auto.html  
+# <-- ref from haproxy in fuel-controller
+
+[oslo_messaging_rabbit]
+#rabbit_userid = openstack
+rabbit_userid = nova
+#rabbit_password = KVELCEvAuUIiJMmkfq7vvwY6Mw3dN3ixY8FYqNrF  # <-- password
+#rabbit_password = NWJl4BskVCkQx0BqbgfnYMDL
+rabbit_password = Mtf5vxMVYwzFpM31eoXAs38y
+rabbit_ha_queues = true
+#rabbit_hosts = 172.16.1.10:5672,172.16.1.11:5672  <--  controller-both ( network-interface in kolla )
+#rabbit_hosts = 192.168.0.5:5673
+rabbit_hosts = 192.168.0.9:5673
+# <--  controller-node1 ( just one-controller in fuel )
+
+[oslo_concurrency]
+lock_path = /var/lib/nova/tmp
+
+[glance]
+#api_servers = http://10.10.10.254:9292  <-- tunnel-interface in kolla  (2/8)
+#api_servers = http://192.168.0.2:9292  
+api_servers = http://192.168.0.7:9292  
+#<--  ref from haproxy in fuel-controller
+
+num_retries = 2
+
+[cinder]
+catalog_info = volume:cinder:internalURL
+
+[neutron]
+#url = http://10.10.10.254:9696  <-- tunnel-interface in kolla  (3/8)
+#url = http://192.168.0.2:9696  
+url = http://192.168.0.7:9696  
+#<-- ref from haproxy in fuel-controller
+
+metadata_proxy_shared_secret = SCGQJuOcxKgRQTBIBcnKaIAfQUtNvggiXSAAG4L8
+service_metadata_proxy = true
+#auth_url = http://10.10.10.254:35357  <-- tunnel-interface in kolla  (4/8)
+#auth_url = http://192.168.0.2:35357   
+auth_url = http://192.168.0.7:35357   
+# <-- ref from haproxy in fuel-controller
+
+auth_type = password
+project_domain_name = default
+user_domain_id = default
+#project_name = service
+project_name = services
+username = neutron
+#password = tOi7sw4IwypBcGDnPbFAhtsY
+password = vZR710KKGsaAb4ebvWOc505N
+
+
+
+[database]
+#connection = mysql+pymysql://nova:7777@10.10.10.254:3306/nova  <-- ?tunnel-interface in kolla  (5/8)
+#connection = mysql+pymysql://nova:PKGe73HiSCNz9y7fLenBzSWk@192.168.0.2:3306/nova  
+connection = mysql+pymysql://nova:WWISy8mInsGADl4w9t1pNTWy@192.168.0.7:3306/nova  
+# <-- ref from haproxy in fuel-controller
+max_pool_size = 50
+max_overflow = 1000
+max_retries = -1
+
+[api_database]
+#connection = mysql+pymysql://nova_api:zQe4C64FL1NtCEBgTcMSeIvFnwg9y8EkK3EJHwRm@10.10.10.254:3306/nova_api  <-- ?tunnel-interface in kolla  (6/8)
+#connection = mysql+pymysql://nova_api:PKGe73HiSCNz9y7fLenBzSWk@192.168.0.2:3306/nova_api  
+connection = mysql+pymysql://nova_api:WWISy8mInsGADl4w9t1pNTWy@192.168.0.7:3306/nova_api  
+# <-- ref from haproxy in fuel-controller
+max_retries = -1
+
+[cache]
+backend = oslo_cache.memcache_pool
+enabled = True
+#memcache_servers = 172.16.1.10:11211,172.16.1.11:11211  <-- controller-both ( network-interface in kolla )
+#memcache_servers = 192.168.0.5:11211  
+memcache_servers = 192.168.0.9:11211  
+# <--  controller-node1 ( just one-controller in fuel )
+
+[keystone_authtoken]
+#auth_uri = http://10.10.10.254:5000  <-- ?tunnel-interface in kolla  (7/8)
+#auth_uri = http://192.168.0.2:5000  
+auth_uri = http://192.168.0.7:5000  
+# <-- ref from haproxy in fuel-controller
+
+#auth_url = http://10.10.10.254:35357  <-- ?tunnel-interface in kolla  (8/8)
+#auth_url = http://192.168.0.2:35357  
+auth_url = http://192.168.0.7:35357  
+# <-- ref from haproxy in fuel-controller
+
+auth_type = password
+project_domain_id = default
+user_domain_id = default
+#project_name = service
+project_name = services
+username = nova
+#password = riJ14ym4tbGJIxoO5cGrEvFvcOeXRap1uRMqQeeg
+#password = 1aHnaA3K4qICY1RwvZrDIght
+password = sa7fsnQn1bZ8JkO3yFUOjoyZ
+memcache_security_strategy = ENCRYPT
+memcache_secret_key = QkaBGvtDhVgOZ8D2n9U0xSP8qkXM4livKG6PnY87
+#memcached_servers = 172.16.1.10:11211,172.16.1.11:11211  <-- controller-both ( network-interface in kolla )
+#memcached_servers = 192.168.0.5:11211  
+memcached_servers = 192.168.0.9:11211  
+# <--  controller-node1 ( just one-controller in fuel )
+
+
+[libvirt]
+#virt_type = qemu
+virt_type = xen
+#connection_uri = "qemu+tcp://172.16.1.16/system"  <-- localhost
+connection_uri = "xen+tcp://192.168.0.15/system"
+# <-- localhost
+
+[upgrade_levels]
+compute = auto
+
+[oslo_messaging_notifications]
+driver = noop
+
+[privsep_entrypoint]
+helper_command = sudo nova-rootwrap /etc/nova/rootwrap.conf privsep-helper --config-file /etc/nova/nova.conf
+

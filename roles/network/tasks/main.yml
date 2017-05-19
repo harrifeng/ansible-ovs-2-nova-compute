@@ -1,0 +1,33 @@
+---
+#- name: Backup Network Device file of previous
+#  copy: src=/etc/sysconfig/network-scripts/ifcfg-{{ item }}  dest={{ item }}
+
+
+- name: Configure Network Interface Card
+  copy: src={{ item }} dest=/etc/sysconfig/network-scripts/{{ item }}
+  with_items:
+    - ifcfg-br-floating
+    - ifcfg-eth0
+    - ifcfg-eth1
+    - ifcfg-eth2
+    - ifcfg-eth2.101
+    - ifcfg-eth2.102
+    - ifcfg-eth2.103
+    - ifcfg-p-ext-0
+
+- name: Configure Bridge Device
+  template: src={{ item }}.j2 dest=/etc/sysconfig/network-scripts/{{ item }}
+  with_items:
+    - ifcfg-br-fw-admin
+    - ifcfg-br-ex
+    - ifcfg-br-mgmt
+    - ifcfg-br-storage
+    - ifcfg-br-mesh
+
+### careful for lost conn. on remote action
+#- name: Network Restart
+#  service: name=network state=restarted
+
+
+
+...

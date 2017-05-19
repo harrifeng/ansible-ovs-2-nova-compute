@@ -1,0 +1,15 @@
+[target]
+localhost	ansible_connection=local
+
+
+#[master]
+#localhost	ansible_connection=local
+
+#[minion]
+#c72-k8s-node1	ansible_connection=ssh      ansible_user=root
+#c72-k8s-node2	ansible_connection=ssh      ansible_user=root
+
+
+#192.168.0.20	c7-k8s-master1
+#192.168.0.21	c7-k8s-node1
+#192.168.0.22	c7-k8s-node2

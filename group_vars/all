@@ -1,0 +1,31 @@
+---
+timezone: UTC
+
+#localhost_br_fw_admin_ip:  10.20.0.15
+#localhost_br_ex_ip:       172.16.0.15
+#localhost_br_mgmt_ip:    192.168.0.15
+#localhost_br_storage_ip: 192.168.1.15
+#localhost_br_mesh_ip:    192.168.2.15
+localhost_br_fw_admin_ip:  10.20.0.30
+localhost_br_ex_ip:       172.16.0.30
+localhost_br_mgmt_ip:    192.168.0.30
+localhost_br_storage_ip: 192.168.1.30
+localhost_br_mesh_ip:    192.168.2.30
+
+### ip change
+controller_haproxy_pub_vip:   172.16.0.8
+controller_haproxy_mgmt_vip: 192.168.0.7
+controller_node_mgmt_ip:     192.168.0.9
+
+### integ. password
+nova_password:    sa7fsnQn1bZ8JkO3yFUOjoyZ
+rabbit_password:  Mtf5vxMVYwzFpM31eoXAs38y
+neutron_password: vZR710KKGsaAb4ebvWOc505N
+memcache_secret_key: QkaBGvtDhVgOZ8D2n9U0xSP8qkXM4livKG6PnY87
+metadata_proxy_shared_secret: SkRmvXovFDScQKsYEfSbFZtr
+
+### db password
+db_nova:     WWISy8mInsGADl4w9t1pNTWy
+db_nova_api: WWISy8mInsGADl4w9t1pNTWy
+db_neutron:  fMSJ8E1j5CA5tZDr9KfL5XfV
+...

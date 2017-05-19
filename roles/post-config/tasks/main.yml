@@ -1,0 +1,9 @@
+---
+
+- debug:
+    msg: "#### Summary of Configure ####"
+
+- debug:
+    msg: "#### You should reboot for apply configuration ####"
+
+...

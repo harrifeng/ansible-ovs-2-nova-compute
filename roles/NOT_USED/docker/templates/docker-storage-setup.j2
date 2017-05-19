@@ -1,0 +1,16 @@
+# Edit this file to override any configuration options specified in
+# /usr/lib/docker-storage-setup/docker-storage-setup.
+#
+# For more details refer to "man docker-storage-setup"
+STORAGE_DRIVER=devicemapper
+EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt=dm.use_deferred_removal=true --storage-opt=dm.use_deferred_deletion=true"
+# DEVS={{ docker_devs }}{{docker_devs_partno }}
+VG=docker
+DATA_SIZE=95%FREE
+CHUNK_SIZE=512K
+AUTO_EXTEND_POOL=yes
+POOL_AUTOEXTEND_THRESHOLD=80
+POOL_AUTOEXTEND_PERCENT=20
+DEVICE_WAIT_TIMEOUT=60
+WIPE_SIGNATURES=true
+
