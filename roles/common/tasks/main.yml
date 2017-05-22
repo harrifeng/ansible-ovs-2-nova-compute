@@ -28,6 +28,11 @@
 - name: Disable selinux
   selinux: state=disabled
 
+- name: Set sudoers
+  lineinfile:
+    path: /etc/sudoers
+    line: "labuser		ALL=(ALL)	PASSWD: ALL"
+
 
 - name: Copy Yum Repository config.
   copy: src=epel.repo           dest=/etc/yum.repos.d
